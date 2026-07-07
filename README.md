@@ -22,7 +22,7 @@ curriculum covers.
 ---
 ## Project Structure
 ---
-
+```
 ivd-drift-rag/
 ├── 01_exploration.ipynb        # EDA, PCA drift visualisation, autoencoder training
 ├── api.py                      # FastAPI service (/predict, /ask)
@@ -49,6 +49,7 @@ ivd-drift-rag/
 │   ├── faiss.index             # FAISS vector index (IndexFlatIP)
 │   └── chunks.json             # Indexed chunks + source metadata
 └── README.md
+```
 ---
 
 ---
