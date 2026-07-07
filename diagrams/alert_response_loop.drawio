@@ -1,0 +1,80 @@
+<mxfile host="app.diagrams.net" agent="Claude" version="24.0.0">
+  <diagram name="Alert Response Loop" id="alert-loop-ivd">
+    <mxGraphModel dx="1000" dy="520" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1000" pageHeight="520" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+
+        <mxCell id="title" value="Boucle de détection et de réponse à une alerte" style="text;html=1;fontSize=20;fontStyle=1;align=center;fontColor=#0F0F2A;" vertex="1" parent="1">
+          <mxGeometry x="280" y="10" width="440" height="30" as="geometry" />
+        </mxCell>
+
+        <mxCell id="s1" value="1. Lecture capteur&#10;vecteur de 128 features" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#E0F5F1;strokeColor=#1B6B5E;fontColor=#0E3D34;fontStyle=1;fontSize=13;" vertex="1" parent="1">
+          <mxGeometry x="30" y="70" width="190" height="70" as="geometry" />
+        </mxCell>
+
+        <mxCell id="s2" value="2. Autoencoder&#10;score de reconstruction" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#1B6B5E;strokeColor=#0E3D34;fontColor=#FFFFFF;fontStyle=1;fontSize=13;" vertex="1" parent="1">
+          <mxGeometry x="272" y="70" width="190" height="70" as="geometry" />
+        </mxCell>
+
+        <mxCell id="s3" value="score &gt; seuil ?" style="rhombus;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#0F0F2A;fontColor=#0F0F2A;fontStyle=1;fontSize=13;" vertex="1" parent="1">
+          <mxGeometry x="512" y="60" width="176" height="90" as="geometry" />
+        </mxCell>
+
+        <mxCell id="sno" value="Résultat normal — RAS" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#F0FAF7;strokeColor=#1B6B5E;fontColor=#0E3D34;fontStyle=1;fontSize=13;" vertex="1" parent="1">
+          <mxGeometry x="500" y="192" width="200" height="50" as="geometry" />
+        </mxCell>
+
+        <mxCell id="s4" value="3. Alerte déclenchée&#10;is_anomaly = true" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#0F0F2A;strokeColor=#0F0F2A;fontColor=#FFFFFF;fontStyle=1;fontSize=13;" vertex="1" parent="1">
+          <mxGeometry x="742" y="70" width="220" height="70" as="geometry" />
+        </mxCell>
+
+        <mxCell id="s5" value="4. Triage sévérité&#10;critique / élevée / modérée&#10;(knowledge_base/05)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#E0F5F1;strokeColor=#1B6B5E;fontColor=#0E3D34;fontStyle=1;fontSize=13;" vertex="1" parent="1">
+          <mxGeometry x="742" y="182" width="220" height="70" as="geometry" />
+        </mxCell>
+
+        <mxCell id="s6" value="5. POST /ask&#10;&quot;pourquoi cette alerte ?&quot;&#10;RAG → mécanisme précis" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#1B6B5E;strokeColor=#0E3D34;fontColor=#FFFFFF;fontStyle=1;fontSize=13;" vertex="1" parent="1">
+          <mxGeometry x="742" y="294" width="220" height="70" as="geometry" />
+        </mxCell>
+
+        <mxCell id="s7" value="6. Action corrective&#10;recalibration / inspection&#10;(knowledge_base/02-03)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#E0F5F1;strokeColor=#1B6B5E;fontColor=#0E3D34;fontStyle=1;fontSize=13;" vertex="1" parent="1">
+          <mxGeometry x="400" y="294" width="200" height="70" as="geometry" />
+        </mxCell>
+
+        <mxCell id="s8" value="7. Documentation&#10;horodatage, score, résolution&#10;(knowledge_base/06)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#F0FAF7;strokeColor=#1B6B5E;fontColor=#0E3D34;fontStyle=1;fontSize=13;" vertex="1" parent="1">
+          <mxGeometry x="80" y="294" width="220" height="70" as="geometry" />
+        </mxCell>
+
+        <!-- edges -->
+        <mxCell id="e1" style="edgeStyle=orthogonalEdgeStyle;html=1;strokeColor=#555555;" edge="1" parent="1" source="s1" target="s2">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e2" style="edgeStyle=orthogonalEdgeStyle;html=1;strokeColor=#555555;" edge="1" parent="1" source="s2" target="s3">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e3" value="oui" style="edgeStyle=orthogonalEdgeStyle;html=1;strokeColor=#555555;fontColor=#555555;" edge="1" parent="1" source="s3" target="s4">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e4" value="non" style="edgeStyle=orthogonalEdgeStyle;html=1;strokeColor=#555555;fontColor=#555555;" edge="1" parent="1" source="s3" target="sno">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e5" style="edgeStyle=orthogonalEdgeStyle;html=1;strokeColor=#555555;" edge="1" parent="1" source="s4" target="s5">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e6" style="edgeStyle=orthogonalEdgeStyle;html=1;strokeColor=#555555;" edge="1" parent="1" source="s5" target="s6">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e7" style="edgeStyle=orthogonalEdgeStyle;html=1;strokeColor=#555555;" edge="1" parent="1" source="s6" target="s7">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e8" style="edgeStyle=orthogonalEdgeStyle;html=1;strokeColor=#555555;" edge="1" parent="1" source="s7" target="s8">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e9" value="retour au monitoring continu" style="edgeStyle=orthogonalEdgeStyle;html=1;strokeColor=#555555;fontColor=#555555;fontStyle=2;exitX=0.5;exitY=1;entryX=0;entryY=0.5;" edge="1" parent="1" source="s8" target="s1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

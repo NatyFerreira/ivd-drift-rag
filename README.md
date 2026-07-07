@@ -1,152 +1,250 @@
-# Assistant de fiabilité IVD
+# Assistant de fiabilité IVD — Drift Detection & RAG
 
-Prototype démontrant deux approches d'IA appliquées à la fiabilité de systèmes de
-diagnostic in vitro (IVD) : détection de dérive par deep learning, et assistance
-qualité par RAG (Retrieval-Augmented Generation) avec un LLM local.
+![Python](https://img.shields.io/badge/Python-3.11-blue?logo=python)
+![TensorFlow](https://img.shields.io/badge/TensorFlow-2.21-FF6F00?logo=tensorflow)
+![FastAPI](https://img.shields.io/badge/FastAPI-inference-009688?logo=fastapi)
+![FAISS](https://img.shields.io/badge/FAISS-vector_search-3776AB)
+![Transformers](https://img.shields.io/badge/🤗_Transformers-Qwen2.5--1.5B-yellow)
+![License](https://img.shields.io/badge/License-MIT-green)
 
-Projet développé pour explorer concrètement les compétences demandées dans les
-offres data & IA appliquées au biomédical : deep learning, détection d'anomalies,
-LLM, RAG, embeddings, bases vectorielles — au-delà de ce que couvre un cursus
-Data Engineering standard.
+Prototype combining deep learning drift detection and a local LLM-powered RAG
+assistant for IVD (in vitro diagnostics) system reliability.
+Two components: an autoencoder flagging sensor drift/anomalies, and a
+Retrieval-Augmented Generation assistant answering quality-control questions
+grounded in internal-style documentation — both served through a single
+FastAPI service, running 100% locally (no external API dependency).
+
+Built to explore, hands-on, the AI/data skills most requested in biomedical
+data & AI job postings — deep learning, anomaly detection, LLM, RAG,
+embeddings, vector databases — beyond what a standard Data Engineering
+curriculum covers.
+
+---
+## Project Structure
+---
+
+ivd-drift-rag/
+├── 01_exploration.ipynb        # EDA, PCA drift visualisation, autoencoder training
+├── api.py                      # FastAPI service (/predict, /ask)
+├── build_index.py              # Builds the FAISS index from knowledge_base/
+├── rag.py                      # Standalone RAG pipeline (CLI test script)
+├── test_llm.py                 # Isolated LLM load/generation smoke test
+├── diagrams/
+│   ├── architecture_diagram.drawio     # Editable — open in app.diagrams.net
+│   ├── architecture_diagram.png
+│   ├── alert_response_loop.drawio      # Editable — open in app.diagrams.net
+│   └── alert_response_loop.png
+├── knowledge_base/
+│   ├── 01_regles_westgard.md         # QC statistical rules
+│   ├── 02_protocole_derive.md        # Drift response protocol
+│   ├── 03_criteres_recalibration.md  # Recalibration criteria
+│   ├── 04_types_erreurs_analytiques.md # Random vs systematic error
+│   ├── 05_gestion_alertes.md         # Alert triage & false-positive handling
+│   └── 06_documentation_incidents.md # Incident documentation requirements
+├── models/
+│   ├── autoencoder.keras       # Trained drift-detection autoencoder
+│   ├── scaler.pkl              # Fitted StandardScaler
+│   └── config.json             # Anomaly threshold + feature metadata
+├── rag_index/
+│   ├── faiss.index             # FAISS vector index (IndexFlatIP)
+│   └── chunks.json             # Indexed chunks + source metadata
+└── README.md
+---
+
+---
 
 ## Architecture
-┌─────────────────────┐
-                │   FastAPI (api.py)   │
-                └──────────┬───────────┘
-                           │
-          ┌────────────────┴────────────────┐
-          │                                  │
-┌─────────▼──────────┐          ┌────────────▼───────────┐
-│   POST /predict      │          │      POST /ask          │
-│  Détection dérive    │          │   RAG qualité IVD        │
-└─────────┬──────────┘          └────────────┬───────────┘
-          │                                  │
-┌─────────▼──────────┐          ┌────────────▼───────────┐
-│  Autoencoder (TF)   │          │ Embeddings multilingues │
-│  + StandardScaler   │          │ + Index FAISS            │
-│                      │          │ + LLM local (Qwen2.5)    │
-└─────────┬──────────┘          └────────────┬───────────┘
-          │                                  │
-┌─────────▼──────────┐          ┌────────────▼───────────┐
-│ Gas Sensor Drift     │          │  knowledge_base/*.md      │
-│ Dataset (UCI)         │          │  (procédures QC types)    │
-└─────────────────────┘          └───────────────────────┘
 
-## Composant 1 — Détection de dérive (deep learning)
+![Architecture Diagram](diagrams/architecture_diagram.png)
 
-**Dataset** : [UCI Gas Sensor Array Drift Dataset](https://archive.ics.uci.edu/dataset/224/gas+sensor+array+drift+dataset+at+different+concentrations)
-— 13 910 mesures, 16 capteurs chimiques, 10 batches sur 36 mois. Choisi comme
-proxy réaliste de dérive instrumentale : le phénomène statistique (dérive
-progressive + événements ponctuels) est identique à celui d'un analyseur IVD,
-même si le domaine d'origine diffère.
+Two independent pipelines feed a single FastAPI service: sensor readings flow
+through the autoencoder to `/predict`, and quality-control questions flow
+through the RAG pipeline to `/ask`. Both run locally — no external API calls.
 
-**Approche** : autoencoder non supervisé (128 → 64 → 16 → 64 → 128, Keras/TensorFlow).
-Entraîné à reconstruire ses propres entrées ; l'erreur de reconstruction sert de
-score d'anomalie. Approche non supervisée choisie délibérément : dans un contexte
-réel de monitoring IVD, on n'a généralement pas de label "ceci est une anomalie"
-fiable a priori.
+---
 
-**Seuil** : percentile 95 de l'erreur de reconstruction, plutôt que moyenne +
-N écarts-types. La distribution des erreurs est fortement asymétrique (outliers
-extrêmes visibles au boxplot), ce qui rend moyenne/écart-type non fiables — les
-outliers eux-mêmes déforment le seuil censé les capturer.
+## Alert Response Loop
 
-**Validation** : triangulation par PCA (visualisation de la dérive dans le temps),
-boxplot par batch (distinction entre anomalies ponctuelles et dérive systémique),
-et superposition anomalies détectées / PCA (cohérence visuelle confirmée).
+![Alert Response Loop](diagrams/alert_response_loop.png)
 
-**Limite identifiée et documentée** : les batches sous-représentés dans le
-dataset (peu d'échantillons) montrent un taux de faux positifs plus élevé,
-car l'autoencoder les a moins vus à l'entraînement. Ce biais est explicitement
-documenté dans `knowledge_base/05_gestion_alertes.md` et correctement identifié
-par le RAG (voir exemples plus bas).
+When an anomaly crosses the threshold, the flow doesn't stop at detection:
+severity triage, a RAG query explaining *why* the alert fired, corrective
+action, and documentation all close the loop back to continuous monitoring —
+each step grounded in a specific `knowledge_base/` document.
 
-## Composant 2 — RAG qualité (LLM local)
+---
 
-**Base de connaissances** : 6 documents markdown couvrant des procédures QC
-standard du secteur (règles de Westgard, protocole de réponse à une dérive,
-critères de recalibration, types d'erreurs analytiques, gestion des alertes,
-documentation d'incidents). Contenu rédigé à partir de connaissances générales
-du domaine, structuré en chunks par section (`##`) pour une recherche précise.
+## Technology Stack
 
-**Pipeline** :
-1. Embeddings multilingues (`paraphrase-multilingual-MiniLM-L12-v2`) — choisi
-   pour la qualité de la recherche sémantique en français.
-2. Index vectoriel FAISS (`IndexFlatIP`, similarité cosinus).
-3. LLM local `Qwen2.5-1.5B-Instruct` (Hugging Face Transformers), génération
-   déterministe (`do_sample=False`) pour maximiser la fidélité au contexte
-   récupéré plutôt que la créativité.
+| Component | Technology |
+|-----------|------------|
+| API Framework | FastAPI |
+| API Server | Uvicorn (ASGI) |
+| Deep Learning | TensorFlow / Keras — autoencoder |
+| Preprocessing | scikit-learn — StandardScaler |
+| Embeddings | sentence-transformers (`paraphrase-multilingual-MiniLM-L12-v2`) |
+| Vector Search | FAISS (`IndexFlatIP`, cosine similarity) |
+| LLM | Qwen2.5-1.5B-Instruct (Hugging Face Transformers, local inference) |
+| Acceleration | PyTorch MPS (Apple Silicon) |
+| Environment | Python 3.11 venv |
 
-**Choix "100% local"** : aucune dépendance à une API payante externe — tourne
-entièrement sur Apple Silicon (MPS), pertinent pour un contexte où la
-confidentialité des données de diagnostic est critique.
+> **Why local-only:** no external LLM API dependency — relevant in a context
+> where diagnostic data confidentiality matters. Everything runs offline on
+> Apple Silicon (MPS) once models are downloaded.
 
-## Stack technique
-
-| Domaine | Outils |
-|---|---|
-| Deep learning | TensorFlow/Keras, scikit-learn |
-| API | FastAPI, Pydantic |
-| RAG | sentence-transformers, FAISS, Hugging Face Transformers |
-| LLM | Qwen2.5-1.5B-Instruct (local, MPS) |
-| Data | pandas, numpy, matplotlib |
+---
 
 ## Installation
 
 ```bash
+# Create and activate the environment
 python3.11 -m venv venv
 source venv/bin/activate
-pip install tensorflow scikit-learn pandas matplotlib fastapi uvicorn pydantic \
-            sentence-transformers faiss-cpu transformers torch
 
-python3 build_index.py      # construit l'index FAISS à partir de knowledge_base/
-uvicorn api:app              # démarre le service (les deux endpoints)
+# Install dependencies
+pip install tensorflow scikit-learn pandas matplotlib fastapi uvicorn pydantic \
+            sentence-transformers faiss-cpu transformers torch joblib
+
+# Download the dataset (not versioned — see Dataset note below)
+# https://archive.ics.uci.edu/dataset/224/gas+sensor+array+drift+dataset+at+different+concentrations
 ```
 
-Interface interactive : `http://127.0.0.1:8000/docs`
+---
 
-## Exemples d'utilisation
+## Building the Knowledge Base Index
 
-**Détection d'anomalie :**
+```bash
+python3 build_index.py
+```
+
+Reads `knowledge_base/*.md`, chunks by section (`##`), embeds and writes
+`rag_index/faiss.index` + `rag_index/chunks.json`. Pre-trained model
+artifacts (`models/`) and the FAISS index (`rag_index/`) are already
+committed to this repo — the API runs out of the box without retraining.
+
+---
+
+## Starting the Service
+
+```bash
+uvicorn api:app
+```
+
+> First startup loads TensorFlow, PyTorch and the Qwen model (~3GB) —
+> expect it to take longer than a typical FastAPI boot.
+
+Access: `http://127.0.0.1:8000/docs`
+
+---
+
+## Endpoints
+
+| Method | Route | Description |
+|--------|-------|-------------|
+| GET | `/` | API health check |
+| POST | `/predict` | Drift/anomaly score for a 128-feature sensor reading |
+| POST | `/ask` | RAG-grounded answer to a QC/reliability question |
+
+---
+
+## Prediction Example — Drift Detection
+
 ```bash
 curl -X POST http://127.0.0.1:8000/predict \
   -H "Content-Type: application/json" \
-  -d '{"features": [...]}'  # vecteur de 128 features
+  -d '{"features": [/* 128 float values */]}'
 ```
 
-**Question qualité (RAG) :**
+Response:
+```json
+{
+  "reconstruction_error": 0.0456,
+  "is_anomaly": true,
+  "threshold": 0.0423
+}
+```
+
+---
+
+## Prediction Example — RAG Assistant
+
 ```bash
 curl -X POST http://127.0.0.1:8000/ask \
   -H "Content-Type: application/json" \
   -d '{"query": "Pourquoi le batch 1 a-t-il autant de fausses alertes ?", "k": 5}'
 ```
 
-Réponse type : *"Le batch 1 a autant de fausses alertes probablement parce
-qu'il inclut des capteurs peu représentés, ce qui entraîne plus de faux
-positifs... Il serait judicieux d'ajuster les seuils sur des données
-historiques représentatives plutôt que sur un échantillon trop restreint."*
+Response:
+```json
+{
+  "answer": "Le batch 1 a autant de fausses alertes probablement parce qu'il inclut des capteurs peu représentés, ce qui entraîne plus de faux positifs. Il serait judicieux d'ajuster les seuils sur des données historiques représentatives plutôt que sur un échantillon trop restreint, afin de minimiser ces faux positifs.",
+  "sources": [
+    {"source": "05_gestion_alertes.md", "score": 0.429},
+    {"source": "04_types_erreurs_analytiques.md", "score": 0.435}
+  ]
+}
+```
 
-## Problèmes techniques résolus
+---
 
-- **Segfault TensorFlow sur Python 3.13 (Anaconda)** : conflit de bibliothèques
-  natives dans l'environnement conda. Résolu par un venv Python 3.11 isolé.
-- **Segfault PyTorch/Transformers (float16 sur MPS)** : instabilité du support
-  Metal pour float16 avec des modèles de cette taille. Résolu en forçant
-  `dtype=torch.float32`.
-- **Segfault au chargement combiné FAISS + PyTorch** : conflit OpenMP dupliqué
-  (le même type de problème que le premier, cause différente). Résolu par
-  `KMP_DUPLICATE_LIB_OK=TRUE` et réordonnancement des imports.
-- **Précision du RAG sur requêtes ambiguës** : un modèle 1.5B avec k=3 documents
-  généralisait au lieu de citer le mécanisme précis. Résolu en augmentant k=5
-  et en contraignant le prompt système à privilégier une cause spécifique du
-  contexte plutôt qu'une explication générale.
+## Anomaly Detection — Methodology
 
-## Limites connues
+| Step | Choice | Rationale |
+|------|--------|-----------|
+| Model | Unsupervised autoencoder | No reliable ground-truth anomaly labels in a real monitoring context |
+| Threshold | 95th percentile of reconstruction error | Distribution is heavily right-skewed with extreme outliers; mean ± N·SD would be distorted by the outliers it's meant to catch |
+| Validation | PCA visualisation, per-batch boxplot, anomaly/PCA overlay | Triangulated confirmation before trusting the threshold |
 
-- LLM local de 1.5B paramètres : suffisant pour ce périmètre, mais moins
-  robuste qu'un modèle plus grand sur des questions hors du corpus fourni.
-- Base de connaissances volontairement restreinte (6 documents) pour un MVP —
-  une version production nécessiterait un corpus réglementaire plus large
-  (validation IVD, procédures internes réelles).
-- Dataset de capteurs chimiques utilisé comme proxy pédagogique de dérive
-  instrumentale ; pas un dataset de diagnostic clinique réel.
+**Known bias, documented rather than hidden:** batches under-represented in
+training data show a higher false-positive rate — the autoencoder simply saw
+fewer examples of them. This exact mechanism is documented in
+`knowledge_base/05_gestion_alertes.md` and is correctly retrieved and
+explained by the RAG assistant when asked about it (see example above).
+
+---
+
+## Technical Issues Resolved
+
+| Issue | Cause | Fix |
+|-------|-------|-----|
+| TensorFlow segfault (Python 3.13, Anaconda) | Native library conflict in the conda `base` env | Isolated Python 3.11 venv |
+| PyTorch/Transformers segfault | `float16` instability on MPS for this model size | Forced `dtype=torch.float32` |
+| Segfault on combined FAISS + PyTorch load | Duplicated OpenMP runtime | `KMP_DUPLICATE_LIB_OK=TRUE` + import reordering |
+| RAG generalising instead of citing the precise mechanism | Small 1.5B model diluting with `k=3` + sampling | `k=5`, `do_sample=False`, stricter system prompt |
+
+---
+
+## Dataset Note
+
+[UCI Gas Sensor Array Drift Dataset](https://archive.ics.uci.edu/dataset/224/gas+sensor+array+drift+dataset+at+different+concentrations)
+(13,910 rows, 16 chemical sensors, 10 batches over 36 months) is used as a
+realistic proxy for instrument drift — the statistical phenomenon (gradual
+drift + punctual events) mirrors what an IVD analyzer experiences, even
+though the source domain differs. Not versioned in this repo (see
+`.gitignore`); download link above.
+
+---
+
+## Known Limitations
+
+- 1.5B-parameter local LLM: sufficient for this scope, less robust than a
+  larger model on questions outside the provided corpus.
+- Knowledge base deliberately small (6 documents) for an MVP — a production
+  version would need a broader regulatory corpus (real IVD validation
+  procedures, internal QC documentation).
+- Chemical sensor dataset used as a pedagogical proxy for instrument drift,
+  not a real clinical diagnostic dataset.
+
+---
+
+## Author
+
+**Natália Helen Ferreira**  
+PhD in Biological Chemistry | Data Engineer & AI (RNCP Level 7, in progress)  
+[LinkedIn](https://linkedin.com/in/ferreiranh) · [GitHub](https://github.com/NatyFerreira)
+
+---
+
+## License
+
+MIT License — see [LICENSE](LICENSE) for details.

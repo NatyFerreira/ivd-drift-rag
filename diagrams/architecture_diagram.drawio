@@ -1,0 +1,105 @@
+<mxfile host="app.diagrams.net" agent="Claude" version="24.0.0">
+  <diagram name="Architecture" id="architecture-ivd">
+    <mxGraphModel dx="1100" dy="720" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1100" pageHeight="750" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+
+        <!-- Title -->
+        <mxCell id="title" value="Assistant de fiabilité IVD — Architecture" style="text;html=1;fontSize=20;fontStyle=1;align=center;fontColor=#0F0F2A;" vertex="1" parent="1">
+          <mxGeometry x="350" y="10" width="400" height="30" as="geometry" />
+        </mxCell>
+
+        <!-- Outer container -->
+        <mxCell id="container" value="FastAPI service (api.py) — single process" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FAFAFA;strokeColor=#CCCCCC;dashed=1;verticalAlign=top;align=left;spacingLeft=15;spacingTop=10;fontSize=13;fontStyle=1;fontColor=#555555;" vertex="1" parent="1">
+          <mxGeometry x="40" y="50" width="1020" height="600" as="geometry" />
+        </mxCell>
+
+        <!-- Column headers -->
+        <mxCell id="col1title" value="Composant 1 — Détection de dérive" style="text;html=1;fontSize=15;fontStyle=1;align=center;fontColor=#1B6B5E;" vertex="1" parent="1">
+          <mxGeometry x="140" y="100" width="260" height="24" as="geometry" />
+        </mxCell>
+        <mxCell id="col2title" value="Composant 2 — RAG qualité" style="text;html=1;fontSize=15;fontStyle=1;align=center;fontColor=#1B6B5E;" vertex="1" parent="1">
+          <mxGeometry x="660" y="100" width="280" height="24" as="geometry" />
+        </mxCell>
+
+        <!-- LEFT COLUMN -->
+        <mxCell id="dataset" value="Gas Sensor Array Drift (UCI)&#10;13 910 lignes · 16 capteurs · 10 batches" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#E0F5F1;strokeColor=#1B6B5E;fontColor=#0E3D34;fontStyle=1;fontSize=13;" vertex="1" parent="1">
+          <mxGeometry x="140" y="130" width="260" height="56" as="geometry" />
+        </mxCell>
+
+        <mxCell id="autoencoder" value="Autoencoder (Keras)&#10;128 → 64 → 16 → 64 → 128&#10;non supervisé" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#1B6B5E;strokeColor=#0E3D34;fontColor=#FFFFFF;fontStyle=1;fontSize=13;" vertex="1" parent="1">
+          <mxGeometry x="140" y="214" width="260" height="64" as="geometry" />
+        </mxCell>
+
+        <mxCell id="threshold" value="Erreur de reconstruction&#10;seuil = percentile 95" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#E0F5F1;strokeColor=#1B6B5E;fontColor=#0E3D34;fontStyle=1;fontSize=13;" vertex="1" parent="1">
+          <mxGeometry x="140" y="306" width="260" height="56" as="geometry" />
+        </mxCell>
+
+        <mxCell id="predict" value="POST /predict&#10;is_anomaly, reconstruction_error" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#0F0F2A;strokeColor=#0F0F2A;fontColor=#FFFFFF;fontStyle=1;fontSize=13;" vertex="1" parent="1">
+          <mxGeometry x="140" y="390" width="260" height="56" as="geometry" />
+        </mxCell>
+
+        <!-- RIGHT COLUMN -->
+        <mxCell id="kb" value="knowledge_base/*.md&#10;6 documents · chunks par section" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#E0F5F1;strokeColor=#1B6B5E;fontColor=#0E3D34;fontStyle=1;fontSize=13;" vertex="1" parent="1">
+          <mxGeometry x="660" y="130" width="280" height="56" as="geometry" />
+        </mxCell>
+
+        <mxCell id="embeddings" value="Embeddings multilingues&#10;paraphrase-multilingual-MiniLM-L12-v2" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#E0F5F1;strokeColor=#1B6B5E;fontColor=#0E3D34;fontStyle=1;fontSize=13;" vertex="1" parent="1">
+          <mxGeometry x="660" y="214" width="280" height="56" as="geometry" />
+        </mxCell>
+
+        <mxCell id="faiss" value="Index FAISS&#10;IndexFlatIP · similarité cosinus" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#1B6B5E;strokeColor=#0E3D34;fontColor=#FFFFFF;fontStyle=1;fontSize=13;" vertex="1" parent="1">
+          <mxGeometry x="660" y="298" width="280" height="56" as="geometry" />
+        </mxCell>
+
+        <mxCell id="llm" value="LLM local — Qwen2.5-1.5B&#10;Hugging Face Transformers · MPS" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#1B6B5E;strokeColor=#0E3D34;fontColor=#FFFFFF;fontStyle=1;fontSize=13;" vertex="1" parent="1">
+          <mxGeometry x="660" y="382" width="280" height="56" as="geometry" />
+        </mxCell>
+
+        <mxCell id="ask" value="POST /ask&#10;answer, sources[]" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#0F0F2A;strokeColor=#0F0F2A;fontColor=#FFFFFF;fontStyle=1;fontSize=13;" vertex="1" parent="1">
+          <mxGeometry x="660" y="466" width="280" height="56" as="geometry" />
+        </mxCell>
+
+        <!-- Client -->
+        <mxCell id="client" value="Client (curl / Swagger UI)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#F0FAF7;strokeColor=#1B6B5E;fontColor=#0E3D34;fontStyle=1;fontSize=13;" vertex="1" parent="1">
+          <mxGeometry x="405" y="590" width="260" height="50" as="geometry" />
+        </mxCell>
+
+        <!-- Edges left column -->
+        <mxCell id="e1" style="edgeStyle=orthogonalEdgeStyle;html=1;strokeColor=#555555;" edge="1" parent="1" source="dataset" target="autoencoder">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e2" style="edgeStyle=orthogonalEdgeStyle;html=1;strokeColor=#555555;" edge="1" parent="1" source="autoencoder" target="threshold">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e3" style="edgeStyle=orthogonalEdgeStyle;html=1;strokeColor=#555555;" edge="1" parent="1" source="threshold" target="predict">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- Edges right column -->
+        <mxCell id="e4" style="edgeStyle=orthogonalEdgeStyle;html=1;strokeColor=#555555;" edge="1" parent="1" source="kb" target="embeddings">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e5" style="edgeStyle=orthogonalEdgeStyle;html=1;strokeColor=#555555;" edge="1" parent="1" source="embeddings" target="faiss">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e6" style="edgeStyle=orthogonalEdgeStyle;html=1;strokeColor=#555555;" edge="1" parent="1" source="faiss" target="llm">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e7" style="edgeStyle=orthogonalEdgeStyle;html=1;strokeColor=#555555;" edge="1" parent="1" source="llm" target="ask">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- Edges to client -->
+        <mxCell id="e8" style="edgeStyle=orthogonalEdgeStyle;html=1;strokeColor=#555555;exitX=0.5;exitY=1;entryX=0.25;entryY=0;" edge="1" parent="1" source="predict" target="client">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e9" style="edgeStyle=orthogonalEdgeStyle;html=1;strokeColor=#555555;exitX=0.5;exitY=1;entryX=0.75;entryY=0;" edge="1" parent="1" source="ask" target="client">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>
