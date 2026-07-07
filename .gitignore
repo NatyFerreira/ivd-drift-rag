@@ -1,0 +1,14 @@
+# Ambiente virtual
+venv/
+__pycache__/
+*.pyc
+
+# Dataset bruto (baixável via README)
+Dataset/
+gas+sensor+array+drift+dataset.zip
+
+# Sistema
+.DS_Store
+
+# Notebook checkpoints
+.ipynb_checkpoints/

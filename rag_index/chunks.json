@@ -1,0 +1,134 @@
+[
+  {
+    "source": "01_regles_westgard.md",
+    "doc_title": "Règles de Westgard pour le contrôle qualité",
+    "chunk_id": 0,
+    "text": "# Règles de Westgard pour le contrôle qualité\n\nLes règles de Westgard sont un ensemble de critères statistiques utilisés pour accepter\nou rejeter une série analytique en fonction des résultats des contrôles qualité."
+  },
+  {
+    "source": "01_regles_westgard.md",
+    "doc_title": "Règles de Westgard pour le contrôle qualité",
+    "chunk_id": 1,
+    "text": "## Règles principales\n\n- **1-2s** : alerte si un contrôle dépasse 2 écarts-types (SD) de la moyenne. Règle\n  d'avertissement uniquement, ne rejette pas la série seule.\n- **1-3s** : rejet si un contrôle dépasse 3 SD. Indique une erreur aléatoire significative.\n- **2-2s** : rejet si deux contrôles consécutifs dépassent 2 SD dans la même direction.\n  Indique une erreur systématique.\n- **R-4s** : rejet si la différence entre deux contrôles consécutifs dépasse 4 SD.\n  Indique une erreur aléatoire.\n- **4-1s** : rejet si quatre contrôles consécutifs dépassent 1 SD dans la même direction.\n  Indique une dérive systématique émergente.\n- **10x** : rejet si dix contrôles consécutifs se situent du même côté de la moyenne,\n  même sans dépasser 1 SD. Indique un biais systématique persistant."
+  },
+  {
+    "source": "01_regles_westgard.md",
+    "doc_title": "Règles de Westgard pour le contrôle qualité",
+    "chunk_id": 2,
+    "text": "## Interprétation pratique\n\nUne violation de type 2-2s, 4-1s ou 10x pointe généralement vers une **erreur\nsystématique** (dérive du capteur, recalibration nécessaire, changement de réactif/lot).\nUne violation 1-3s ou R-4s pointe plutôt vers une **erreur aléatoire** (problème\nponctuel : bulle d'air, contamination, défaillance mécanique isolée)."
+  },
+  {
+    "source": "02_protocole_derive.md",
+    "doc_title": "Protocole de réponse à une dérive détectée",
+    "chunk_id": 0,
+    "text": "# Protocole de réponse à une dérive détectée\n\nLorsqu'un système de surveillance signale une dérive du capteur ou de l'instrument,\nla procédure standard suit trois étapes."
+  },
+  {
+    "source": "02_protocole_derive.md",
+    "doc_title": "Protocole de réponse à une dérive détectée",
+    "chunk_id": 1,
+    "text": "## 1. Confirmation\n\nAvant toute action corrective, confirmer que le signal n'est pas un faux positif :\n- Vérifier si un seul point est concerné (probable erreur ponctuelle) ou si la\n  dérive persiste sur plusieurs mesures consécutives (probable dérive systématique).\n- Comparer avec l'historique récent du même capteur/analyte.\n- Vérifier les journaux de maintenance : une recalibration ou un changement de\n  réactif récent explique souvent une variation transitoire attendue."
+  },
+  {
+    "source": "02_protocole_derive.md",
+    "doc_title": "Protocole de réponse à une dérive détectée",
+    "chunk_id": 2,
+    "text": "## 2. Classification de la sévérité\n\n- **Mineure** : écart proche du seuil, isolé, sans impact clinique attendu.\n  Surveillance renforcée, pas d'arrêt du système.\n- **Modérée** : plusieurs mesures consécutives hors seuil (pattern 4-1s ou 10x).\n  Suspension des résultats concernés en attente de vérification.\n- **Sévère** : dérive brutale et importante, ou violation 1-3s / R-4s.\n  Arrêt immédiat de la ligne concernée, recalibration obligatoire avant reprise."
+  },
+  {
+    "source": "02_protocole_derive.md",
+    "doc_title": "Protocole de réponse à une dérive détectée",
+    "chunk_id": 3,
+    "text": "## 3. Actions correctives\n\n- Recalibration de l'instrument selon la procédure du fabricant.\n- Si la dérive persiste après recalibration : inspection matérielle (capteur,\n  électrodes, réactifs, maintenance préventive en retard).\n- Documentation systématique de l'incident : cause identifiée, action corrective,\n  validation du retour à la normale avant remise en production."
+  },
+  {
+    "source": "03_criteres_recalibration.md",
+    "doc_title": "Critères de recalibration d'un instrument de diagnostic",
+    "chunk_id": 0,
+    "text": "# Critères de recalibration d'un instrument de diagnostic"
+  },
+  {
+    "source": "03_criteres_recalibration.md",
+    "doc_title": "Critères de recalibration d'un instrument de diagnostic",
+    "chunk_id": 1,
+    "text": "## Déclencheurs de recalibration\n\nUne recalibration est requise dans les cas suivants :\n- Violation d'une règle de Westgard de type systématique (2-2s, 4-1s, 10x).\n- Dépassement d'un intervalle de temps fixe depuis la dernière calibration\n  (typiquement 24h à 30 jours selon le type d'analyseur et le fabricant).\n- Changement de lot de réactif ou de consommable critique.\n- Après toute intervention de maintenance corrective sur le capteur.\n- Résultat de contrôle qualité externe (EQA/EEQ) hors tolérance."
+  },
+  {
+    "source": "03_criteres_recalibration.md",
+    "doc_title": "Critères de recalibration d'un instrument de diagnostic",
+    "chunk_id": 2,
+    "text": "## Fréquence typique selon le type de dérive\n\n- **Dérive lente et systématique** (accumulation sur plusieurs jours/semaines) :\n  recalibration programmée selon le calendrier standard suffit généralement.\n- **Dérive brutale** (saut soudain de valeur) : recalibration immédiate requise,\n  indépendamment du calendrier programmé — probable cause matérielle."
+  },
+  {
+    "source": "03_criteres_recalibration.md",
+    "doc_title": "Critères de recalibration d'un instrument de diagnostic",
+    "chunk_id": 3,
+    "text": "## Validation post-recalibration\n\nAprès recalibration, un minimum de 2 à 3 contrôles qualité consécutifs dans les\ntolérances est requis avant de considérer l'instrument à nouveau validé pour\nla production de résultats patients."
+  },
+  {
+    "source": "04_types_erreurs_analytiques.md",
+    "doc_title": "Types d'erreurs analytiques en diagnostic in vitro",
+    "chunk_id": 0,
+    "text": "# Types d'erreurs analytiques en diagnostic in vitro"
+  },
+  {
+    "source": "04_types_erreurs_analytiques.md",
+    "doc_title": "Types d'erreurs analytiques en diagnostic in vitro",
+    "chunk_id": 1,
+    "text": "## Erreur aléatoire\n\nVariation imprévisible, sans tendance directionnelle, généralement causée par :\n- Bulles d'air dans le circuit fluidique\n- Contamination ponctuelle d'un échantillon\n- Défaillance mécanique isolée (pipetage, vanne)\n\nSignature statistique : un seul point s'écarte fortement (violation 1-3s ou R-4s),\nsans que les mesures voisines soient affectées."
+  },
+  {
+    "source": "04_types_erreurs_analytiques.md",
+    "doc_title": "Types d'erreurs analytiques en diagnostic in vitro",
+    "chunk_id": 2,
+    "text": "## Erreur systématique\n\nDécalage constant ou progressif dans une direction, causé par :\n- Dérive de capteur (vieillissement, encrassement, désétalonnage progressif)\n- Dégradation de réactif (lot périmé ou mal conservé)\n- Problème d'étalonnage initial\n\nSignature statistique : plusieurs points consécutifs du même côté de la moyenne\n(violation 2-2s, 4-1s ou 10x), avec une tendance qui persiste dans le temps."
+  },
+  {
+    "source": "04_types_erreurs_analytiques.md",
+    "doc_title": "Types d'erreurs analytiques en diagnostic in vitro",
+    "chunk_id": 3,
+    "text": "## Impact sur la fiabilité du système\n\nLes erreurs aléatoires affectent un résultat isolé et sont généralement moins\ncritiques si détectées rapidement (un seul patient concerné). Les erreurs\nsystématiques affectent potentiellement tous les résultats produits depuis le\ndébut de la dérive, ce qui impose une revue rétrospective des résultats émis\ndepuis la dernière calibration valide."
+  },
+  {
+    "source": "05_gestion_alertes.md",
+    "doc_title": "Gestion des alertes de monitoring",
+    "chunk_id": 0,
+    "text": "# Gestion des alertes de monitoring"
+  },
+  {
+    "source": "05_gestion_alertes.md",
+    "doc_title": "Gestion des alertes de monitoring",
+    "chunk_id": 1,
+    "text": "## Priorisation des alertes\n\nToutes les alertes ne nécessitent pas une intervention immédiate. Une priorisation\nclaire évite la fatigue d'alerte (alert fatigue) qui mène à ignorer les signaux\nréellement critiques.\n\n- **Critique** : impact direct possible sur des résultats déjà rendus aux\n  cliniciens. Intervention immédiate, astreinte déclenchée si hors heures ouvrées.\n- **Élevée** : dérive confirmée mais résultats encore en attente de validation.\n  Intervention dans l'heure.\n- **Modérée** : signal isolé, sous surveillance renforcée. Revue dans la journée.\n  Pas d'arrêt de production nécessaire à ce stade.\n- **Faible** : information, tendance à surveiller sur plusieurs jours. Revue\n  hebdomadaire suffisante."
+  },
+  {
+    "source": "05_gestion_alertes.md",
+    "doc_title": "Gestion des alertes de monitoring",
+    "chunk_id": 2,
+    "text": "## Réduction des faux positifs\n\nUn système de détection trop sensible génère des faux positifs qui érodent la\nconfiance des équipes support. Bonnes pratiques :\n- Ajuster les seuils sur des données historiques représentatives, pas sur un\n  échantillon trop restreint.\n- Distinguer les capteurs peu représentés (peu de données d'entraînement) des\n  capteurs bien couverts — un capteur sous-représenté peut générer plus de faux\n  positifs par manque de données d'apprentissage.\n- Documenter chaque alerte traitée (vrai positif / faux positif) pour affiner\n  progressivement les seuils."
+  },
+  {
+    "source": "06_documentation_incidents.md",
+    "doc_title": "Documentation des incidents qualité",
+    "chunk_id": 0,
+    "text": "# Documentation des incidents qualité"
+  },
+  {
+    "source": "06_documentation_incidents.md",
+    "doc_title": "Documentation des incidents qualité",
+    "chunk_id": 1,
+    "text": "## Éléments obligatoires d'un rapport d'incident\n\nTout incident de dérive ou d'anomalie détectée doit être documenté avec :\n- Horodatage précis du début et de la fin de l'incident\n- Capteur(s) ou paramètre(s) concerné(s)\n- Score d'anomalie ou valeur de déviation observée\n- Classification (erreur aléatoire vs systématique)\n- Action corrective entreprise\n- Résultats potentiellement impactés (plage temporelle à revoir)\n- Statut de résolution (en cours / résolu / sous surveillance)"
+  },
+  {
+    "source": "06_documentation_incidents.md",
+    "doc_title": "Documentation des incidents qualité",
+    "chunk_id": 2,
+    "text": "## Traçabilité réglementaire\n\nDans un environnement réglementé (ICH, FDA, BPC), la documentation d'incident\nfait partie intégrante de la traçabilité qualité. Un incident non documenté,\nmême mineur et sans impact clinique confirmé, constitue un manquement à la\ntraçabilité attendue lors d'un audit."
+  },
+  {
+    "source": "06_documentation_incidents.md",
+    "doc_title": "Documentation des incidents qualité",
+    "chunk_id": 3,
+    "text": "## Boucle d'amélioration continue\n\nChaque incident documenté alimente une base de connaissance interne permettant :\n- D'affiner les seuils de détection automatique\n- D'identifier des patterns récurrents (même capteur, même période, même type\n  de réactif)\n- De réduire le temps moyen de résolution (MTTR) pour les incidents similaires\n  déjà rencontrés"
+  }
+]
